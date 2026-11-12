@@ -142,7 +142,10 @@ def test_delete_task(page: Page):
 
     expect(task_items).to_have_count(0)
 
-
+    page.screenshot(
+        path="docs/evidence/member-2/extra-test-1-delete-task.png",
+        full_page=True,
+    )
 def test_clear_completed_tasks(page: Page):
     page.goto(URL)
 
@@ -161,4 +164,8 @@ def test_clear_completed_tasks(page: Page):
     expect(task_items).to_have_count(1)
     expect(task_items.locator("label")).to_have_text(
         ["Active task"]
+    )
+    page.screenshot(
+        path="docs/evidence/member-2/extra-test-2-clear-completed.png",
+        full_page=True,
     )
