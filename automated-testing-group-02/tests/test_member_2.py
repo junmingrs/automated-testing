@@ -71,3 +71,94 @@ def test_blank_task_is_not_added(page: Page, task_text: str):
     task_input.press("Enter")
 
     expect(task_items).to_have_count(0)
+
+
+def test_login_with_correct_details(page: Page):
+    page.goto("https://the-internet.herokuapp.com/login")
+
+    page.get_by_label("Username").fill("tomsmith")
+    page.get_by_label("Password").fill("SuperSecretPassword!")
+    page.get_by_role("button", name="Login").click()
+
+    expect(
+        page.get_by_role(
+            "heading",
+            name="Secure Area",
+            exact=True,
+        )
+    ).to_be_visible()
+
+
+def test_login_with_incorrect_password(page: Page):
+    page.goto("https://the-internet.herokuapp.com/login")
+
+    page.get_by_label("Username").fill("tomsmith")
+    page.get_by_label("Password").fill("WrongPassword123")
+    page.get_by_role("button", name="Login").click()
+
+    expect(
+        page.locator("#flash")
+    ).to_contain_text("Your password is invalid!")
+
+    expect(page).to_have_url(
+        "https://the-internet.herokuapp.com/login"
+    )
+
+
+def add_task(page: Page, task_name: str):
+    task_input = page.get_by_placeholder(
+        "What needs to be done?",
+        exact=True,
+    )
+    task_input.fill(task_name)
+    task_input.press("Enter")
+
+
+def test_add_two_tasks(page: Page):
+    page.goto(URL)
+    task_items = page.locator(".todo-list li")
+
+    expect(task_items).to_have_count(0)
+
+    add_task(page, "Read the instructions")
+    add_task(page, "Practise the examples")
+
+    expect(task_items).to_have_count(2)
+    expect(task_items.locator("label")).to_have_text(
+        ["Read the instructions", "Practise the examples"]
+    )
+
+
+def test_delete_task(page: Page):
+    page.goto(URL)
+
+    add_task(page, "Task to delete")
+
+    task_items = page.locator(".todo-list li")
+    expect(task_items).to_have_count(1)
+
+    task_items.first.hover()
+    task_items.first.locator(".destroy").click()
+
+    expect(task_items).to_have_count(0)
+
+
+def test_clear_completed_tasks(page: Page):
+    page.goto(URL)
+
+    add_task(page, "Completed task")
+    add_task(page, "Active task")
+
+    task_items = page.locator(".todo-list li")
+    expect(task_items).to_have_count(2)
+
+    task_items.first.get_by_role("checkbox").check()
+
+    page.get_by_role(
+        "button", name="Clear completed"
+    ).click()
+
+    expect(task_items).to_have_count(1)
+    expect(task_items.locator("label")).to_have_text(
+        ["Active task"]
+    )
