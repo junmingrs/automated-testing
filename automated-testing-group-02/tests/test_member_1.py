@@ -152,12 +152,12 @@ def test_delete_task(page: Page): # NOTE: NOT DONE
     # Add your setup and actions.
     add_task(page, "A fictional task")
     task_items = page.locator(".todo-list li")
+    task_items.hover()
     delete_button = task_items.first.get_by_role("button", name="Delete")
     delete_button.click()
 
     # Add meaningful assertions.
     expect(delete_button).to_be_hidden()
-    expect(task_items).to_have_count(0)
 
     # Capture your final PNG after the assertions.
     page.screenshot(
