@@ -1,3 +1,5 @@
+from os import name
+
 import pytest
 from playwright.sync_api import Page, expect
 
@@ -150,14 +152,12 @@ def test_delete_task(page: Page): # NOTE: NOT DONE
     # Add your setup and actions.
     add_task(page, "A fictional task")
     task_items = page.locator(".todo-list li")
-    checkbox = task_items.first.get_by_role("checkbox")
-    checkbox.check()
-    page.get_by_role("link", name="Completed", exact=True).click()
+    delete_button = task_items.first.get_by_role("button", name="Delete")
+    delete_button.click()
 
     # Add meaningful assertions.
-    expect(checkbox).to_be_checked()
-    expect(task_items).to_have_count(1)
-    expect(task_items.locator("label")).to_have_text(["A fictional task"])
+    expect(delete_button).to_be_hidden()
+    expect(task_items).to_have_count(0)
 
     # Capture your final PNG after the assertions.
     page.screenshot(
