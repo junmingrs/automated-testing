@@ -146,7 +146,7 @@ def test_active_filter_shows_unfinished_task(page: Page):
     full_page=True,
     )
 
-def test_delete_task(page: Page): # NOTE: NOT DONE
+def test_delete_task(page: Page):
     page.goto(URL)
 
     # Add your setup and actions.
@@ -164,4 +164,58 @@ def test_delete_task(page: Page): # NOTE: NOT DONE
     path="docs/evidence/member-1/extra-test-2-delete-task.png",
     full_page=True,
     )
+
+
+def test_edit_existing_task(page: Page):
+    page.goto(URL)
+    add_task(page, "Complete assignment")
+
+    task = page.locator(".todo-list li")
+    task.locator("label").dblclick()
+
+    edit_field = task.locator(".edit")
+    edit_field.fill("Complete DevOps assignment")
+    edit_field.press("Enter")
+
+    expect(task.locator("label")).to_have_text(
+        "Complete DevOps assignment"
+    )
+    expect(page.get_by_text(
+        "Complete assignment", exact=True
+    )).to_have_count(0)
+
+    page.screenshot(
+        path="docs/evidence/member-1/extra-test-1-edit.png",
+        full_page=True
+    )
+
+
+def test_clear_completed_tasks(page: Page):
+    page.goto(URL)
+
+    add_task(page, "Task A")
+    add_task(page, "Task B")
+    add_task(page, "Task C")
+
+    tasks = page.locator(".todo-list li")
+    expect(tasks).to_have_count(3)
+
+    tasks.nth(0).locator(".toggle").check()
+    tasks.nth(1).locator(".toggle").check()
+
+    page.get_by_role(
+        "button", name="Clear completed"
+    ).click()
+
+    expect(tasks).to_have_count(1)
+    expect(tasks.locator("label")).to_have_text(
+        ["Task C"]
+    )
+    expect(tasks.locator(".toggle")).not_to_be_checked()
+
+    page.screenshot(
+        path="docs/evidence/member-1/extra-test-2-clear.png",
+        full_page=True
+    )
+
 
